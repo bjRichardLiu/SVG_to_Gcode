@@ -9,14 +9,14 @@ def parse_svg_path(path_data):
     Supports M (moveto), L (lineto), H (horizontal), V (vertical), C (cubic bezier), 
     Q (quadratic bezier), A (arc), and Z (closepath) commands.
     """
-    print(f"\n=== Parsing path data ===")
-    print(f"Raw path data: {path_data[:200]}...")  # Print first 200 chars
+    # print(f"\n=== Parsing path data ===")
+    # print(f"Raw path data: {path_data[:200]}...")  # Print first 200 chars
     
     points = []
     # Better regex to handle commands with optional whitespace and commas
     commands = re.findall(r'[MLHVZCSQTAmlhvzcsqta][^MLHVZCSQTAmlhvzcsqta]*', path_data)
     
-    print(f"Found {len(commands)} commands: {[c[0] for c in commands]}")
+    # print(f"Found {len(commands)} commands: {[c[0] for c in commands]}")
     
     current_x = 0
     current_y = 0
@@ -30,7 +30,7 @@ def parse_svg_path(path_data):
         params = re.findall(r'-?\d*\.?\d+(?:[eE][+-]?\d+)?', params_str)
         params = [float(p) for p in params if p]
         
-        print(f"Command {cmd_idx}: '{cmd_type}' with params: {params}")
+        # print(f"Command {cmd_idx}: '{cmd_type}' with params: {params}")
         
         if cmd_type == 'M':  # Absolute moveto
             if len(params) >= 2:
@@ -212,7 +212,8 @@ def normalize_svg_coordinates(paths, target_size=60):
         for point in path:
             cmd_type = point[0]
             x = (point[1] - min_x) * scale
-            y = (point[2] - min_y) * scale
+            # Flip Y: subtract from max to invert
+            y = svg_height * scale - (point[2] - min_y) * scale
             normalized_path.append((cmd_type, x, y))
         normalized_paths.append(normalized_path)
     
@@ -304,7 +305,7 @@ def visualize_svg_paths(svg_paths, title="SVG Paths Visualization"):
     
     ax2.set_xlabel('X (mm)')
     ax2.set_ylabel('Y (mm)')
-    ax2.set_title('Normalized Paths (60mm)')
+    ax2.set_title('Normalized Paths (60mm) (Note Y inverted to match 3D printer coordinates)')
     ax2.grid(True, alpha=0.3)
     ax2.axis('equal')
     ax2.legend()
@@ -324,6 +325,7 @@ def main():
     start_x = 40  # Starting X coordinate offset
     start_y = 40  # Starting Y coordinate offset
     layer_height = 0.2  # Height of each layer
+    debug = False  # Enable debug mode for visualization
     
     # Parse SVG
     print(f"Parsing SVG file: {svg_file}")
@@ -331,19 +333,20 @@ def main():
     
     print(f"Found {len(svg_paths)} paths in SVG")
     
-    # Debug: Print first few points of each path
-    for i, path in enumerate(svg_paths):
-        print(f"\nPath {i+1}: {len(path)} points")
-        print(f"  First 5 points: {path[:5]}")
-    
-    # Visualize the paths
-    visualize_svg_paths(svg_paths)
-    
-    # Ask user if they want to continue to G-code generation
-    response = input("\nDoes the visualization look correct? Continue to G-code generation? (y/n): ")
-    if response.lower() != 'y':
-        print("Stopping. Please fix the SVG parsing first.")
-        return
+    if debug:
+        # Debug: Print first few points of each path
+        for i, path in enumerate(svg_paths):
+            print(f"\nPath {i+1}: {len(path)} points")
+            print(f"  First 5 points: {path[:5]}")
+        
+        # Visualize the paths
+        visualize_svg_paths(svg_paths)
+        
+        # Ask user if they want to continue to G-code generation
+        response = input("\nDoes the visualization look correct? Continue to G-code generation? (y/n): ")
+        if response.lower() != 'y':
+            print("Stopping. Please fix the SVG parsing first.")
+            return
     
     gcode = ""
     
