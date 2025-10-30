@@ -1,0 +1,21 @@
+{
+    "X_OFFSET": 0,
+    "Y_OFFSET": 0,
+    "Z_OFFSET": 0,
+    "X_MAX": 100,
+    "Y_MAX": 100,
+    "X_MIN": 0,
+    "Y_MIN": 0,
+    "G0_SPEED": 5000,
+    "G1_SPEED": 3000,
+    "Z_SPEED": 50,
+    "START_GCODE": "M73.2 R1.0\nG0 Z100\nG90\nG1 X100 Y100\n",
+    "END_GCODE": "G1 X100 Y100 Z100\n",
+    "NOZZLE_SIZE": 0.4,
+    "LAYER_HEIGHT": 0.2,
+    "FILAMENT_DIAMETER": 1.75,
+    "FILAMENT_FLOW_RATE": 0.98,
+    "FILAMENT_TEMPERATURE": 200,
+    "FAN_SPEED": 255,
+    "BED_TEMPERATURE": 65
+}
